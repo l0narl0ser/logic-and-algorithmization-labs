@@ -17,7 +17,7 @@ struct node
 struct node* head = NULL, * last = NULL, * f = NULL; // указатели на первый и последний элементы списка
 int dlinna = 0;
 
-void addElementToStack(node* element) {
+void addElementToStack(node* element) { //последний зашёл - первый вышел
 	
 	if (head == NULL)
 	{
@@ -44,7 +44,7 @@ node* getElementFromStack() {
 		return item;
 	}
 }
-
+//https://stackoverflow.com/questions/22179169/delete-struct-from-stack-memory
 
 void addElementToQueueWithPriority(node* element) { //приоритетная очередь 
 	node* item = head;
@@ -82,7 +82,7 @@ void addElementToQueueWithPriority(node* element) { //приоритетная �
 }
 
 
-void addElementToQueue(node* element) { //очередь 
+void addElementToQueue(node* element) { //последний пришел - последний вышел 
 	node* item = head;
 	
 	if (head == NULL)
@@ -118,8 +118,10 @@ node* getElementFromQueue() {
 // Функции добавления элемента, просмотра списка
 void spstore(void), printQueue(void), del(char* name);
 
+void WorkWithPriorityQueue();
+
 char find_el[256];
-struct node* find(char* name); // функция нахождения элемента
+struct node* findElementInGeneralStruct(char* name); // функция нахождения элемента
 struct node* createStruct(); // функция создания элемента
 
 
@@ -193,7 +195,7 @@ void printQueue()
 
 
 /* Поиск элемента по содержимому. */
-struct node* find(char* name)
+struct node* findElementInGeneralStruct(char* name)
 {
 	struct node* struc = head;
 	if (head == NULL)
@@ -268,57 +270,131 @@ void del(char* name)
 		printf("Элемент не найден\n");
 		return;
 	}
-
-
 }
 
-void main() {
-	setlocale(LC_ALL, "Rus");
-	int countElementsInQueue = 2;
+
+void clearAllNodes() {
+
+	if (head == NULL) {
+		return;
+	}
+
+	node* element = head;
+	while (element != NULL)
+	{
+		node* nodeTodDelite = element;
+		element = element->next;
+		free(nodeTodDelite);
+	}
+
+	head = NULL;
+}
+
+void WorkWithPriorityQueue()
+{
+	int userInput = 1;
+
 	printf("Работа с приоритетной очередью\n");
 
-
-	for (int i = 0; i < countElementsInQueue; i++)
+	while (userInput > 0)
 	{
 		node* inputElement = createStruct();
 		addElementToQueueWithPriority(inputElement);
+		printf("Введите 0, чтобы закончить \t или 1 , чтобы продолжить\n");
+		scanf("%d", &userInput);
 	}
+	printQueue();
 
-	printQueue();	
+	char inputString[250];
+	printf("\nВведите название искомого объекта\n");
+	scanf("%s", inputString);
+
+	node* findedElement = findElementInGeneralStruct(inputString);
+
+	if (findedElement != NULL) {
+		printf("\nЭлемент найден name = %s priority = %d\n", findedElement->inf, findedElement->priority);
+	}
+	clearAllNodes();
+}
 
 
+void WorkWithQueue() {
+	int userInput = 1;
 
-	head = NULL;
 	printf("Работа с обычыной очередью\n");
-	
-	for (int i = 0; i < countElementsInQueue; i++)
+	while (userInput > 0)
 	{
 		node* inputElement = createStruct();
 		addElementToQueue(inputElement);
+		printf("Введите 0, чтобы закончить или 1 , чтобы продолжить\n");
+		scanf("%d", &userInput);
 	}
 
+	char inputString[250];
+	printf("\nВведите название искомого объекта\n");
+	scanf("%s", inputString);
+
+	node* findedElement = findElementInGeneralStruct(inputString);
+
+	if (findedElement != NULL) {
+		printf("\nЭлемент найден name = %s priority = %d\n", findedElement->inf, findedElement->priority);
+	}
+
+	printf("\nВсе  элементы\n");
 	node* elementToPrint = head;
 	while (elementToPrint != NULL)
 	{
 		elementToPrint = getElementFromQueue();
+		if (elementToPrint == NULL) {
+			return;
+		}
 		printf("Имя = %s \n", elementToPrint->inf);
 	}
 
+}
+
+void WorkWithStack() {
+	int userInput = 1;
+	node* elementToPrint = head;
 	printf("Работа с стеком\n");
 
-	head = NULL;
-
-
-	for (int i = 0; i < countElementsInQueue; i++)
+	while (userInput > 0)
 	{
 		node* inputElement = createStruct();
 		addElementToStack(inputElement);
+		printf("Введите 0, чтобы закончить \t или 1 , чтобы продолжить\n");
+		scanf("%d", &userInput);
 	}
 
-	node* elementToPrint = head;
+	char inputString[250];
+	printf("\nВведите название искомого объекта\n");
+	scanf("%s", inputString);
+
+	node* findedElement = findElementInGeneralStruct(inputString);
+
+	if (findedElement != NULL) {
+		printf("\nЭлемент найден name = %s priority = %d\n", findedElement->inf, findedElement->priority);
+	}
+
+	printf("\nВсе  элементы\n");
+
+
+	elementToPrint = head;
 	while (elementToPrint != NULL)
 	{
 		elementToPrint = getElementFromStack();
+		if (elementToPrint == NULL) {
+			return;
+		}
 		printf("Имя = %s \n", elementToPrint->inf);
 	}
+}
+
+void main() {
+	setlocale(LC_ALL, "Rus");
+	
+	WorkWithPriorityQueue();
+	WorkWithQueue();
+	WorkWithStack();
+
 }
