@@ -64,7 +64,7 @@ Node* CreateTree(struct Node* root, struct Node* userElement, int data)
 
 
 
-
+//форматирование дерева
 void print2DUtil(struct Node* root, int space)
 {
 	const int scpaces = 10;
@@ -108,7 +108,7 @@ bool SearchNodeByKey(Node* root, const int key)
 	}
 }
 
-
+//поиск количества вхождений элемента
 int foundCountSameElementsInBT(Node* root, const int key)
 {
 	if (root == NULL) {
@@ -134,7 +134,7 @@ int GetCountNodes(Node* root)
 }
 
 
-
+//добавление элементов в дерево без повторений
 Node* AddElementToTreeWithOutRepeat(struct Node* localRoot, struct Node* userElement, int data)
 {
 
@@ -246,39 +246,14 @@ int main()
 	{
 
 		printf("\nВведите элемент, который хотите посчитать: ");
-		scanf_s("%d", &userInput);		;
+		scanf_s("%d", &userInput); ;
 
 		printf("Количество вхождений равно  = %d", foundCountSameElementsInBT(root, userInput));
 
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	//создание нового дерева без повторений
 	printf("\n\n\n\n\n\n\n\n\n\n\n\n");
-
-
-
-
-
-
-
-	//Очистить памят
-
-
-
 
 	Node* rootTree = NULL;
 	start = 1;
@@ -300,7 +275,7 @@ int main()
 			else {
 				rootTree = elementToAdd;
 			}
-		}		
+		}
 
 	}
 
