@@ -50,7 +50,6 @@ void printMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
 
 int** identificationVertex(int** sourseMatrix, int columnCount, int rowsCount, int firstVertexToDelete, int secondVertexToDelete) {
 
-	printf("\nОтождествление вершин графа:\n");
 
 	int** newMatrix = NULL;
 	int* firstRowToSave = NULL;
@@ -126,6 +125,42 @@ int** identificationVertex(int** sourseMatrix, int columnCount, int rowsCount, i
 	return newMatrix;
 }
 
+int** splitVertex(int** sourseMatrix, int columnCount, int rowsCount, int splitVertex) {
+	int** splitMatrix = NULL;
+	int sizeOfNewMatrix = columnCount + 1;
+
+	allocateMatrix(&splitMatrix, sizeOfNewMatrix, sizeOfNewMatrix);
+
+	for (int i = 0; i < rowsCount; i++)
+	{
+		for (int j = 0; j < columnCount; j++)
+		{
+			splitMatrix[i][j] = sourseMatrix[i][j];
+		}
+	}
+	
+
+	int copyIndex = 0;
+
+	for (int i = 0; i < rowsCount; i++)
+	{
+		if (sourseMatrix[i][splitVertex] == 1)
+		{
+			copyIndex = i;
+			splitMatrix[i][splitVertex] = 0;
+			splitMatrix[splitVertex][i] = 0;
+			break;
+		}
+	}
+
+	splitMatrix[sizeOfNewMatrix - 1][splitVertex] = 1;
+	splitMatrix[splitVertex][sizeOfNewMatrix - 1] = 1;
+
+	splitMatrix[copyIndex][sizeOfNewMatrix-1] = 1;
+	splitMatrix[sizeOfNewMatrix - 1][copyIndex] = 1;
+
+	return splitMatrix;
+}
 
 void printListAdjacency(int** sourseMatrix, int columnCount, int rowsCount) {
 
@@ -164,6 +199,8 @@ int main()
 	int firstVertexToDelete = 0;
 	int secondVertexToDelete = 0;
 
+	int userCount = 0;
+
 	printf("Введите количество элементов = ");
 
 	scanf_s("%d", &countElements);
@@ -195,12 +232,14 @@ int main()
 	printf("Номер второй удаляемой вершины = ");
 	scanf_s("%d", &secondVertexToDelete);
 
+	printf("\nОтождествление вершин графа:\n"); 
+
 	printf("M1:\n");
 
 	int** identificationFirstMatrix =  identificationVertex(firstMatrix, countElements, countElements, firstVertexToDelete, secondVertexToDelete);
 	printMatrix(identificationFirstMatrix, countElements-1, countElements-1);
 
-	printf("\n\nНомер первой удаляемой вершины = ");
+	printf("\nНомер первой удаляемой вершины = ");
 	scanf_s("%d", &firstVertexToDelete);
 
 	printf("\n");
@@ -213,9 +252,37 @@ int main()
 	int** identificationSecondMatrix = identificationVertex(secondMatrix, countElements, countElements, firstVertexToDelete, secondVertexToDelete);
 	printMatrix(identificationSecondMatrix, countElements - 1, countElements - 1);
 
+	printf("\n\nСтягивание ребра графа:\n");
+
+	printf("\nИндекс удаляемого ребра М1 = ");
+	scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
+	printf("\n");
+
+	int** EdgeContraction = identificationVertex(firstMatrix, countElements, countElements, firstVertexToDelete, secondVertexToDelete);
+	printMatrix(EdgeContraction, countElements - 1, countElements - 1);
+
+	printf("\n\nРасщепление вершины:\n");
+
+	printf("\nИндекс расщепляемой вершины М1 = ");
+	scanf_s("%d", &userCount);
+	printf("\n");
+	int** splitFirstMatrix = splitVertex(firstMatrix, countElements, countElements, userCount);
+	printMatrix(splitFirstMatrix, countElements + 1, countElements + 1);
+
+
+	printf("\n\nИндекс расщепляемой вершины М1 = ");
+	scanf_s("%d", &userCount);
+	printf("\n");
+	int** splitSecondMatrix = splitVertex(secondMatrix, countElements, countElements, userCount);
+	printMatrix(splitSecondMatrix, countElements + 1, countElements + 1);
 
 	free(firstMatrix);
 	free(secondMatrix);
+	free(identificationFirstMatrix);
+	free(identificationSecondMatrix);
+	free(EdgeContraction);
+	free(splitFirstMatrix);
+	free(splitSecondMatrix);
 
 }
 
