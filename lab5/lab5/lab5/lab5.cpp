@@ -5,18 +5,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include "lab5.h"
 
-void allocateMatrix(int*** sourceMatrix, int columnCount, int rowsCount) {
+void allocateMatrix(int*** sourceMatrix, int rowCount, int columnCount) {
 
-	*sourceMatrix = (int**)malloc(columnCount * sizeof(int*));
+	*sourceMatrix = (int**)malloc(rowCount * sizeof(int*));
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < rowCount; i++)
 	{
-		(*sourceMatrix)[i] = (int*)calloc(rowsCount, sizeof(int));
+		(*sourceMatrix)[i] = (int*)calloc(columnCount, sizeof(int));
 	}
 }
 
-void fillMatrixRandomElements(int** sourseMatrix, int columnCount, int rowsCount) {
+void fillMatrixRandomElements(int** sourseMatrix, int rowsCount, int columnCount) {
 
 	for (int i = 0; i < rowsCount; i++)
 	{
@@ -27,8 +28,14 @@ void fillMatrixRandomElements(int** sourseMatrix, int columnCount, int rowsCount
 			}
 			else
 			{
-				sourseMatrix[i][j] = rand() & 1;
-				sourseMatrix[j][i] = sourseMatrix[i][j];
+				if (columnCount == rowsCount) {
+					sourseMatrix[i][j] = rand() & 1;
+					sourseMatrix[j][i] = sourseMatrix[i][j];
+				}
+				else {
+					sourseMatrix[i][j] = rand() & 1;
+				}
+
 
 			}
 			//sourseMatrix[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
@@ -36,7 +43,7 @@ void fillMatrixRandomElements(int** sourseMatrix, int columnCount, int rowsCount
 	}
 }
 
-void printMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
+void printMatrix(int** sourseMatrix, int rowsCount, int columnCount) {
 
 	for (int i = 0; i < rowsCount; i++)
 	{
@@ -48,19 +55,20 @@ void printMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
 	}
 }
 
-int** identificationVertex(int** sourseMatrix, int columnCount, int rowsCount, int firstVertexToDelete, int secondVertexToDelete) {
+int** identificationVertex(int** sourseMatrix, int rowCount, int columnCount, int firstVertexToDelete, int secondVertexToDelete) {
 
 
 	int** newMatrix = NULL;
 	int* firstRowToSave = NULL;
 	int* secondRowToSave = NULL;
 
-	int sizeOfNewMatrix = columnCount - 1;
+	int countRowsOfNewMatrix = rowCount - 1;
+	int countColumnsOfNewMatrix = columnCount - 1;
 
-	allocateMatrix(&newMatrix, sizeOfNewMatrix, sizeOfNewMatrix);
+	allocateMatrix(&newMatrix, countRowsOfNewMatrix, countColumnsOfNewMatrix);
 
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < rowCount; i++)
 	{
 		if (i == firstVertexToDelete)
 		{
@@ -73,7 +81,7 @@ int** identificationVertex(int** sourseMatrix, int columnCount, int rowsCount, i
 	}
 	int index = 0;
 	int secondIndex = 0;
-	for (int i = 0; i < rowsCount; i++) {
+	for (int i = 0; i < rowCount; i++) {
 
 		if (i == firstVertexToDelete || i == secondVertexToDelete) {
 			continue;
@@ -85,7 +93,6 @@ int** identificationVertex(int** sourseMatrix, int columnCount, int rowsCount, i
 				continue;
 			}
 
-			newMatrix[secondIndex][index] = sourseMatrix[i][j];
 			newMatrix[index][secondIndex] = sourseMatrix[i][j];
 
 			secondIndex++;
@@ -95,31 +102,31 @@ int** identificationVertex(int** sourseMatrix, int columnCount, int rowsCount, i
 
 	index = 0;
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < rowCount; i++)
 	{
 		if (i == firstVertexToDelete || i == secondVertexToDelete)
 		{
 			continue;
 		}
-		newMatrix[sizeOfNewMatrix - 1][index] = firstRowToSave[i];
-		newMatrix[index][sizeOfNewMatrix - 1] = firstRowToSave[i];
+		newMatrix[countRowsOfNewMatrix - 1][index] = firstRowToSave[i];
+		newMatrix[index][countColumnsOfNewMatrix - 1] = firstRowToSave[i];
 		index++;
 	}
 
 	index = 0;
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < rowCount; i++)
 	{
 		if (i == firstVertexToDelete || i == secondVertexToDelete) {
 			continue;
 		}
 
-		if (newMatrix[index][sizeOfNewMatrix - 1] == 1 || secondRowToSave[i] == 0) {
+		if (newMatrix[index][countColumnsOfNewMatrix - 1] == 1 || secondRowToSave[i] == 0) {
 			index++;
 			continue;
 		}
-		newMatrix[sizeOfNewMatrix - 1][index] = secondRowToSave[i];
-		newMatrix[index][sizeOfNewMatrix - 1] = secondRowToSave[i];
+		newMatrix[countRowsOfNewMatrix - 1][index] = secondRowToSave[i];
+		newMatrix[index][countColumnsOfNewMatrix - 1] = secondRowToSave[i];
 		index++;
 	}
 	return newMatrix;
@@ -247,7 +254,7 @@ int** cartesianProductOfGraphs(int** firstMatrix, int** secondMatrix, int column
 }
 
 
-void printListAdjacency(int** sourseMatrix, int columnCount, int rowsCount) {
+void printListAdjacency(int** sourseMatrix, int rowsCount, int columnCount) {
 
 	printf("\nСписок смежности:\n");
 
@@ -268,6 +275,63 @@ void printListAdjacency(int** sourseMatrix, int columnCount, int rowsCount) {
 }
 
 
+void printMatrixView(int** firstMatrix, int firstMatrixRowsCount, int firstMatrixColumnsCount, int** secondMatrix, int secondMatrixRowsCount, int secondMatrixColumnsCount)
+{
+	printf("\tM1: \n");
+	fillMatrixRandomElements(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
+	printMatrix(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
+	printf("\n");
+	printListAdjacency(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
+
+	printf("\n\n\n\n");
+
+	printf("\tM2: \n");
+	fillMatrixRandomElements(secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
+	printMatrix(secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
+	printf("\n");
+	printListAdjacency(secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
+}
+
+
+void workWithMatrixIdentification(int** matrix, int matrixRowsCount, int matrixColumnsCount){
+	int firstVertexToDelete = 0;
+	int secondVertexToDelete = 0;
+
+	printf("\nНомер первой удаляемой вершины = ");
+	scanf_s("%d", &firstVertexToDelete);
+	printf("\n");
+	printf("Номер второй удаляемой вершины = ");
+	scanf_s("%d", &secondVertexToDelete);
+	int** identificationMatrix = identificationVertex(matrix, matrixRowsCount, matrixColumnsCount, firstVertexToDelete, secondVertexToDelete);
+	printMatrix(identificationMatrix, matrixRowsCount - 1, matrixColumnsCount - 1);
+	free(identificationMatrix);
+}
+
+void workWithRemoveEdge(int** matrix, int matrixColumnCount, int matrixRowCount) {
+	int firstVertexToDelete = 0;
+	int secondVertexToDelete = 0;
+
+	printf("\nИндекс удаляемого ребра  = ");
+	scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
+	printf("\n");
+
+	int** edgeContractionFirstMatrix = identificationVertex(matrix, firstVertexToDelete, secondVertexToDelete, firstVertexToDelete, secondVertexToDelete);
+	printMatrix(edgeContractionFirstMatrix, matrixColumnCount - 1, matrixRowCount - 1);
+
+}
+
+
+void workWithSplitVertix(int** matrix, int matrixColumnCount, int matrixRowCount) {
+
+	int userInputFirstMatrix = 0;
+
+	printf("\nИндекс расщепляемой вершины  = ");
+	scanf_s("%d", &userInputFirstMatrix);
+	printf("\n");
+	int** splitFirstMatrix = splitVertex(matrix, matrixColumnCount, matrixRowCount, userInputFirstMatrix);
+	printMatrix(splitFirstMatrix, matrixColumnCount + 1, matrixRowCount + 1);
+	free(splitFirstMatrix);
+}
 
 void firstTask() {
 
@@ -275,112 +339,55 @@ void firstTask() {
 	int** secondMatrix = NULL;
 	int** resultMatrix = NULL;
 
-	int firstCount = 0;
-	int secondCount = 0;
+	int firstMatrixRowsCount = 0;
+	int firstMatrixColumnsCount= 0;
 
-	int firstVertexToDelete = 0;
-	int secondVertexToDelete = 0;
 
-	int userInputFirstMatrix = 0;
+	int secondMatrixRowsCount = 0;
+	int secondMatrixColumnsCount = 0;
+
 	int userInputSecondMatrix = 0;
 
-	printf("Введите количество первой матрицы смежности = ");
+	printf("Введите количество строк для перовй матрицы смежности = ");
+	scanf_s("%d", &firstMatrixRowsCount);
+	printf("Введите количество столбцов для перовй матрицы смежности = ");
+	scanf_s("%d", &firstMatrixColumnsCount);
 
-	scanf_s("%d", &firstCount);
 
-	printf("Введите количество второй матрицы смежности = ");
 
-	scanf_s("%d", &secondCount);
+	printf("Введите количество строк для второй матрицы смежности = ");
+	scanf_s("%d", &secondMatrixRowsCount);
+	printf("Введите количество столбцов для второй матрицы смежности = ");
+	scanf_s("%d", &secondMatrixColumnsCount);
+
 
 	printf("\n");
+	allocateMatrix(&firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
+	allocateMatrix(&secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
 
-	printf("\tM1: \n");
-	allocateMatrix(&firstMatrix, firstCount, firstCount);
-	fillMatrixRandomElements(firstMatrix, firstCount, firstCount);
-	printMatrix(firstMatrix, firstCount, firstCount);
-	printf("\n");
-	printListAdjacency(firstMatrix, firstCount, firstCount);
+	printMatrixView(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount, secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
 
-	printf("\n\n\n\n");
-
-	printf("\tM2: \n");
-	allocateMatrix(&secondMatrix, secondCount, secondCount);
-	fillMatrixRandomElements(secondMatrix, secondCount, secondCount);
-	printMatrix(secondMatrix, secondCount, secondCount);
-	printf("\n");
-	printListAdjacency(secondMatrix, secondCount, secondCount);
+	printf("\nОтождествление вершин графа M1:\n");
+	workWithMatrixIdentification(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
+	printf("\nОтождествление вершин графа M2:\n");
+	workWithMatrixIdentification(secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
 
 
-	printf("\nНомер первой удаляемой вершины = ");
-	scanf_s("%d", &firstVertexToDelete);
-
-	printf("\n");
-
-	printf("Номер второй удаляемой вершины = ");
-	scanf_s("%d", &secondVertexToDelete);
-
-	printf("\nОтождествление вершин графа:\n");
-
-	printf("M1:\n");
-
-	int** identificationFirstMatrix = identificationVertex(firstMatrix, firstCount, firstCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(identificationFirstMatrix, firstCount - 1, firstCount - 1);
-
-	printf("\nНомер первой удаляемой вершины = ");
-	scanf_s("%d", &firstVertexToDelete);
-
-	printf("\n");
-
-	printf("Номер второй удаляемой вершины = ");
-	scanf_s("%d", &secondVertexToDelete);
-
-	printf("\nM2: \n");
-
-	int** identificationSecondMatrix = identificationVertex(secondMatrix, secondCount, secondCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(identificationSecondMatrix, secondCount - 1, secondCount - 1);
-
-	printf("\n\nСтягивание ребра графа:\n");
-
-	printf("\nИндекс удаляемого ребра М1 = ");
-	scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
-	printf("\n");
-
-	int** EdgeContractionFirstMatrix = identificationVertex(firstMatrix, firstCount, firstCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(EdgeContractionFirstMatrix, firstCount - 1, firstCount - 1);
-
-
+	printf("\n\nСтягивание ребра графа M1:\n");
+	workWithRemoveEdge(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
 	printf("\n\nИндекс удаляемого ребра М2 = ");
-	scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
-	printf("\n");
-	int** EdgeContractionSecondMatrix = identificationVertex(secondMatrix, secondCount, secondCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(EdgeContractionSecondMatrix, secondCount - 1, secondCount - 1);
-
-	printf("\n\nРасщепление вершины:\n");
-
-	printf("\nИндекс расщепляемой вершины М1 = ");
-	scanf_s("%d", &userInputFirstMatrix);
-	printf("\n");
-	int** splitFirstMatrix = splitVertex(firstMatrix, firstCount, firstCount, userInputFirstMatrix);
-	printMatrix(splitFirstMatrix, firstCount + 1, firstCount + 1);
+	workWithRemoveEdge(secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
 
 
-	printf("\n\nИндекс расщепляемой вершины М2 = ");
-	scanf_s("%d", &userInputSecondMatrix);
-	printf("\n");
-	int** splitSecondMatrix = splitVertex(secondMatrix, secondCount, secondCount, userInputSecondMatrix);
-	printMatrix(splitSecondMatrix, secondCount + 1, secondCount + 1);
+	printf("\n\nРасщепление вершины для M1:\n");
+	workWithSplitVertix(firstMatrix, firstMatrixRowsCount, firstMatrixColumnsCount);
 
-
-
+	printf("\n\nРасщепление вершины для M2:\n");
+	workWithSplitVertix(secondMatrix, secondMatrixRowsCount, secondMatrixColumnsCount);
 
 	free(firstMatrix);
 	free(secondMatrix);
-	free(identificationFirstMatrix);
-	free(identificationSecondMatrix);
-	free(EdgeContractionFirstMatrix);
-	free(EdgeContractionSecondMatrix);
-	free(splitFirstMatrix);
-	free(splitSecondMatrix);
+
 }
 
 void secondTask() {
@@ -471,18 +478,7 @@ void thirdTask() {
 int main()
 {
 	setlocale(LC_ALL, "Rus");
-	//firstTask();
-	secondTask();
+	firstTask();
+	//secondTask();
 	//thirdTask();
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
