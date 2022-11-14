@@ -6,6 +6,14 @@
 #include <stdlib.h>
 #include <locale.h>
 
+
+bool checkIsVertertexAdjacent(int** sourceMatrix, int firstVertexToDelite, int secondVertexToDelite) {
+	if (sourceMatrix[firstVertexToDelite][secondVertexToDelite] == 1) {
+		return true;
+	}
+	return false;
+}
+
 void allocateMatrix(int*** sourceMatrix, int columnCount, int rowsCount) {
 
 	*sourceMatrix = (int**)malloc(columnCount * sizeof(int*));
@@ -162,15 +170,15 @@ int** splitVertex(int** sourseMatrix, int columnCount, int rowsCount, int splitV
 	return splitMatrix;
 }
 
-int** unionOfGraphs(int** firstMatrix, int columnCount, int rowsCount, int** secondMatrix, int columnCountSecond, int rowsCountSecond) {
+int** disjunctionGraphs(int** firstMatrix,  int** secondMatrix, int maxSize) {
 
 	int** resultMatrix = NULL;
 
-	allocateMatrix(&resultMatrix, columnCount, rowsCount);
+	allocateMatrix(&resultMatrix, maxSize, maxSize);
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < maxSize; i++)
 	{
-		for (int j = 0; j < columnCount; j++) {
+		for (int j = 0; j < maxSize; j++) {
 			if (firstMatrix[i][j] == 1 || secondMatrix[i][j] == 1)
 			{
 				resultMatrix[i][j] = 1;
@@ -180,14 +188,14 @@ int** unionOfGraphs(int** firstMatrix, int columnCount, int rowsCount, int** sec
 	return resultMatrix;
 }
 
-int** intersectionGraphs(int** firstMatrix, int columnCount, int rowsCount, int** secondMatrix, int columnCountSecond, int rowsCountSecond) {
+int** conjunctionGraphs(int** firstMatrix, int** secondMatrix, int maxSize) {
 	int** resultMatrix = NULL;
 
-	allocateMatrix(&resultMatrix, columnCount, rowsCount);
+	allocateMatrix(&resultMatrix, maxSize, maxSize);
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < maxSize; i++)
 	{
-		for (int j = 0; j < columnCount; j++) {
+		for (int j = 0; j < maxSize; j++) {
 			if (firstMatrix[i][j] == 1 && secondMatrix[i][j] == 1)
 			{
 				resultMatrix[i][j] = 1;
@@ -197,14 +205,14 @@ int** intersectionGraphs(int** firstMatrix, int columnCount, int rowsCount, int*
 	return resultMatrix;
 }
 
-int** xorGraphs(int** firstMatrix, int columnCount, int rowsCount, int** secondMatrix, int columnCountSecond, int rowsCountSecond) {
+int** xorGraphs(int** firstMatrix, int** secondMatrix, int maxSize) {
 	int** resultMatrix = NULL;
 
-	allocateMatrix(&resultMatrix, columnCount, rowsCount);
+	allocateMatrix(&resultMatrix, maxSize, maxSize);
 
-	for (int i = 0; i < rowsCount; i++)
+	for (int i = 0; i < maxSize; i++)
 	{
-		for (int j = 0; j < columnCount; j++) {
+		for (int j = 0; j < maxSize; j++) {
 			if (firstMatrix[i][j] == 1 ^ secondMatrix[i][j] == 1)
 			{
 				resultMatrix[i][j] = 1;
@@ -221,28 +229,60 @@ int** xorGraphs(int** firstMatrix, int columnCount, int rowsCount, int** secondM
 
 int** cartesianProductOfGraphs(int** firstMatrix, int** secondMatrix, int columnCount, int rowsCount) {
 	int** resultMatrix = NULL;
-	int sizeOfNewMatrix = columnCount * columnCount;
+	int sizeOfNewMatrix = columnCount * rowsCount;
 
 	allocateMatrix(&resultMatrix, sizeOfNewMatrix, sizeOfNewMatrix);
+	int w = 0;
+	int z = 0;
 
+	/*for (int i = 0; i < sizeOfNewMatrix; i++)
+	{
+		for (int k = 0; k < sizeOfNewMatrix; k++)
+		{
+			z++;
+			for (int j = 0; j < sizeOfNewMatrix; j++)
+			{
+				for (int l = 0; l < sizeOfNewMatrix; l++)
+				{
+					w++;
+
+					if (i == j)
+					{
+						resultMatrix[z][w] = secondMatrix[k][l];
+					}
+					if (k == l)
+					{
+						resultMatrix[z][w] = firstMatrix[i][j];
+					}
+				}
+			}
+		}
+		
+	}*/
+
+	int firstIndex = 0;
+	int secondIndex = 0;
+
+
+	int firstHalf = 0;
+	int secondHalf = 0;
 	for (int i = 0; i < sizeOfNewMatrix; i++)
 	{
+		firstIndex++;
+
 		for (int j = 0; j < sizeOfNewMatrix; j++)
 		{
-			if (i < columnCount && j < rowsCount)
-			{
-				resultMatrix[i][j] = firstMatrix[i][j];
+			firstHalf++;
+			if (i == j) {
+				resultMatrix[i][j] = 0;
 				continue;
 			}
-			if (i > columnCount - 1  && j > rowsCount - 1)
-			{
-				resultMatrix[i][j] = secondMatrix[i - columnCount - 1][j - columnCount - 1 ];
-				continue;
+			if (j <= rowsCount) {
+				resultMatrix
 			}
-			resultMatrix[i][j] = 1;
 		}
-
 	}
+
 	return resultMatrix;
 }
 
@@ -267,7 +307,12 @@ void printListAdjacency(int** sourseMatrix, int columnCount, int rowsCount) {
 	printf("\n");
 }
 
+void printMatrixAndAdjacency(int** sourceMatrix, int rowCount, int columnCount) {
+	printf("\nМатрица смежности \n");
+	printMatrix(sourceMatrix, rowCount, columnCount);
 
+	printListAdjacency(sourceMatrix, rowCount, columnCount);
+}
 
 void firstTask() {
 
@@ -324,7 +369,8 @@ void firstTask() {
 	printf("M1:\n");
 
 	int** identificationFirstMatrix = identificationVertex(firstMatrix, firstCount, firstCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(identificationFirstMatrix, firstCount - 1, firstCount - 1);
+	printf(" после отождествления вершин\n");
+	printMatrixAndAdjacency(identificationFirstMatrix, firstCount - 1, firstCount - 1);
 
 	printf("\nНомер первой удаляемой вершины = ");
 	scanf_s("%d", &firstVertexToDelete);
@@ -337,23 +383,50 @@ void firstTask() {
 	printf("\nM2: \n");
 
 	int** identificationSecondMatrix = identificationVertex(secondMatrix, secondCount, secondCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(identificationSecondMatrix, secondCount - 1, secondCount - 1);
+	printf(" после отождествления вершин\n");
+	printMatrixAndAdjacency(identificationSecondMatrix, secondCount - 1, secondCount - 1);
+	bool isInputDone = false;
+	while (!isInputDone)
+	{
+		printf("\n\nСтягивание ребра графа:\n");
 
-	printf("\n\nСтягивание ребра графа:\n");
+		printf("\nИндекс удаляемого ребра М1 = ");
+		scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
+		printf("\n");
 
-	printf("\nИндекс удаляемого ребра М1 = ");
-	scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
-	printf("\n");
+		if (checkIsVertertexAdjacent(firstMatrix, firstVertexToDelete, secondVertexToDelete)) {
+			int** EdgeContractionFirstMatrix = identificationVertex(firstMatrix, firstCount, firstCount, firstVertexToDelete, secondVertexToDelete);
+			printMatrixAndAdjacency(EdgeContractionFirstMatrix, firstCount - 1, firstCount - 1);
+			isInputDone = true;
+			free(EdgeContractionFirstMatrix);
+		}
+		else {
+			printf("\nВершины не смежны\n");
+			isInputDone = false;
+		}
+	}
+	isInputDone = false;
+	while (!isInputDone) {
+		printf("\n\nИндекс удаляемого ребра М2 = ");
+		scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
+		printf("\n");
 
-	int** EdgeContractionFirstMatrix = identificationVertex(firstMatrix, firstCount, firstCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(EdgeContractionFirstMatrix, firstCount - 1, firstCount - 1);
+
+		if (checkIsVertertexAdjacent(secondMatrix, firstVertexToDelete, secondVertexToDelete)) {
+			int** EdgeContractionSecondMatrix = identificationVertex(secondMatrix, secondCount, secondCount, firstVertexToDelete, secondVertexToDelete);
+			printMatrixAndAdjacency(EdgeContractionSecondMatrix, secondCount - 1, secondCount - 1);
+			isInputDone = true;
+			free(EdgeContractionSecondMatrix);
+		}
+		else {
+			printf("\nВершины не смежны\n");
+			isInputDone = false;
+		}
+	}
 
 
-	printf("\n\nИндекс удаляемого ребра М2 = ");
-	scanf_s("%d %d", &firstVertexToDelete, &secondVertexToDelete);
-	printf("\n");
-	int** EdgeContractionSecondMatrix = identificationVertex(secondMatrix, secondCount, secondCount, firstVertexToDelete, secondVertexToDelete);
-	printMatrix(EdgeContractionSecondMatrix, secondCount - 1, secondCount - 1);
+
+
 
 	printf("\n\nРасщепление вершины:\n");
 
@@ -361,14 +434,14 @@ void firstTask() {
 	scanf_s("%d", &userInputFirstMatrix);
 	printf("\n");
 	int** splitFirstMatrix = splitVertex(firstMatrix, firstCount, firstCount, userInputFirstMatrix);
-	printMatrix(splitFirstMatrix, firstCount + 1, firstCount + 1);
+	printMatrixAndAdjacency(splitFirstMatrix, firstCount + 1, firstCount + 1);
 
 
 	printf("\n\nИндекс расщепляемой вершины М2 = ");
 	scanf_s("%d", &userInputSecondMatrix);
 	printf("\n");
 	int** splitSecondMatrix = splitVertex(secondMatrix, secondCount, secondCount, userInputSecondMatrix);
-	printMatrix(splitSecondMatrix, secondCount + 1, secondCount + 1);
+	printMatrixAndAdjacency(splitSecondMatrix, secondCount + 1, secondCount + 1);
 
 
 
@@ -377,8 +450,8 @@ void firstTask() {
 	free(secondMatrix);
 	free(identificationFirstMatrix);
 	free(identificationSecondMatrix);
-	free(EdgeContractionFirstMatrix);
-	free(EdgeContractionSecondMatrix);
+	
+
 	free(splitFirstMatrix);
 	free(splitSecondMatrix);
 }
@@ -391,6 +464,71 @@ void secondTask() {
 	int firstCount = 0;
 	int secondCount = 0;
 	int countElements = 0;
+
+	printf("Введите количество элементов = ");
+
+	scanf_s("%d", &firstCount);
+
+	printf("\n");
+
+	printf("Введите количество элементов = ");
+
+	scanf_s("%d", &secondCount);
+
+	printf("\n");
+
+	int maxMatrixSize = 0;
+
+
+	if (firstCount > secondCount) {
+		maxMatrixSize = firstCount;
+	}
+	else {
+		maxMatrixSize = secondCount;
+	}
+
+
+
+	printf("\tG1: \n");
+	allocateMatrix(&firstMatrix, maxMatrixSize, maxMatrixSize);
+	fillMatrixRandomElements(firstMatrix, firstCount, firstCount);
+	printMatrix(firstMatrix, firstCount, firstCount);
+
+	printf("\n");
+
+	printf("\n\n\n\n");
+
+	printf("\tG2: \n");
+	allocateMatrix(&secondMatrix, maxMatrixSize, maxMatrixSize);
+	fillMatrixRandomElements(secondMatrix, secondCount, secondCount);
+	printMatrix(secondMatrix, secondCount, secondCount);
+	printf("\n");
+
+	printf("\n\nОбъединение графов: \n");
+	int** resultunionOfMatrix = disjunctionGraphs(firstMatrix, secondMatrix, maxMatrixSize);
+	printMatrix(resultunionOfMatrix, maxMatrixSize, maxMatrixSize);
+	printf("\n");
+
+	printf("\n\nПересечение графов: \n");
+	int** resultIntersectionMatrix = conjunctionGraphs(firstMatrix, secondMatrix, maxMatrixSize);
+	printMatrix(resultIntersectionMatrix, maxMatrixSize, maxMatrixSize);
+
+	printf("\n");
+
+	printf("\n\nКольевая сумма графов: \n");
+	int** resultXorMatrix = xorGraphs(firstMatrix, secondMatrix, maxMatrixSize);
+	printMatrix(resultXorMatrix, maxMatrixSize, maxMatrixSize);
+}
+
+void thirdTask() {
+
+	int** firstMatrix = NULL;
+	int** secondMatrix = NULL;
+
+	int firstCount = 0;
+	int secondCount = 0;
+	int countElements = 0;
+
 
 	printf("Введите количество элементов = ");
 
@@ -419,61 +557,17 @@ void secondTask() {
 	printMatrix(secondMatrix, secondCount, secondCount);
 	printf("\n");
 
-	printf("\n\nОбъединение графов: \n");
-	int** resultunionOfMatrix = unionOfGraphs(firstMatrix, firstCount, firstCount, secondMatrix, secondCount, secondCount);
-	printMatrix(resultunionOfMatrix, countElements, countElements);
-	printf("\n");
-
-	printf("\n\nПересечение графов: \n");
-	int** resultIntersectionMatrix = intersectionGraphs(firstMatrix, firstCount, firstCount, secondMatrix, secondCount, secondCount);
-	printMatrix(resultIntersectionMatrix, countElements, countElements);
-
-	printf("\n");
-
-	printf("\n\nКольевая сумма графов: \n");
-	int** resultXorMatrix = xorGraphs(firstMatrix, firstCount, firstCount, secondMatrix, secondCount, secondCount);
-	printMatrix(resultXorMatrix, countElements, countElements);
-}
-
-void thirdTask() {
-
-	int** firstMatrix = NULL;
-	int** secondMatrix = NULL;
-
-
-	int countElements = 0;
-	printf("Введите количество элементов = ");
-
-	scanf_s("%d", &countElements);
-
-	printf("\n");
-
-	printf("\tG1: \n");
-	allocateMatrix(&firstMatrix, countElements, countElements);
-	fillMatrixRandomElements(firstMatrix, countElements, countElements);
-	printMatrix(firstMatrix, countElements, countElements);
-
-	printf("\n");
-
-	printf("\n\n\n\n");
-
-	printf("\tG2: \n");
-	allocateMatrix(&secondMatrix, countElements, countElements);
-	fillMatrixRandomElements(secondMatrix, countElements, countElements);
-	printMatrix(secondMatrix, countElements, countElements);
-	printf("\n");
-
 	printf("\n\nДекартово произведение графов: \n");
-	int** resultMatrix = cartesianProductOfGraphs(firstMatrix, secondMatrix, countElements, countElements);
-	printMatrix(resultMatrix, countElements, countElements);
+	int** resultMatrix = cartesianProductOfGraphs(firstMatrix, secondMatrix, firstCount, secondCount);
+	printMatrix(resultMatrix, countElements * secondCount, countElements * secondCount);
 }
 
 int main()
 {
 	setlocale(LC_ALL, "Rus");
 	//firstTask();
-	secondTask();
-	//thirdTask();
+	//secondTask();
+	thirdTask();
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
