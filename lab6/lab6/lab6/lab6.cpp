@@ -133,7 +133,7 @@ int main()
 	int sizeGraph = 0;
 
 	srand(time(NULL));
-	printf("Введите количество первой матрицы смежности = ");
+	printf("Введите размер матрицы смежности = ");
 	scanf_s("%d", &firstCount);
 
 	printf("\tM1: \n");
