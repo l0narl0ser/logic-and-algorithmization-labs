@@ -59,12 +59,12 @@ void printMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
 	}
 }
 
-void breadthFirstSearch(int** sourceMatrix, int matrixSize) {
+void breadthFirstSearch(int** sourceMatrix, int matrixSize, int UserInput) {
 
 	int* visitedVertexs = (int*)calloc(matrixSize, sizeof(int));
 
 	queue<int> vertexQueue;
-	vertexQueue.push(0);
+	vertexQueue.push(UserInput);
 
 	for (int i = 0; i < matrixSize; i++)
 	{
@@ -72,7 +72,7 @@ void breadthFirstSearch(int** sourceMatrix, int matrixSize) {
 	}
 
 
-	visitedVertexs[0] = 0;
+	visitedVertexs[UserInput] = 0;
 
 	while (!vertexQueue.empty())
 	{
@@ -93,7 +93,7 @@ void breadthFirstSearch(int** sourceMatrix, int matrixSize) {
 		}
 	}
 
-	printf("\n\n");
+	printf("\nРастояния\n");
 	for (int i = 0; i < matrixSize; i++)
 	{
 		printf("%d", visitedVertexs[i]);
@@ -108,11 +108,13 @@ void main()
 	setlocale(LC_ALL, "Rus");
 	int** sourceMatrix = NULL;
 	int matrixSize = 0;
+	int UserInput = 0;
 
 
 	printf("Введите размер матрицы смежности = ");
 	scanf_s("%d", &matrixSize);
 
+	
 
 	allocateMatrix(&sourceMatrix, matrixSize, matrixSize);
 	fillMatrixRandomElements(sourceMatrix, matrixSize, matrixSize);
@@ -121,7 +123,11 @@ void main()
 
 	printMatrix(sourceMatrix, matrixSize, matrixSize);
 	printf("\n");
-	breadthFirstSearch(sourceMatrix, matrixSize);
+
+	printf("\nВведите вершину, с которой хотите начать поиск: ");
+	scanf_s("%d", &UserInput);
+	printf("\n");
+	breadthFirstSearch(sourceMatrix, matrixSize, UserInput);
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
