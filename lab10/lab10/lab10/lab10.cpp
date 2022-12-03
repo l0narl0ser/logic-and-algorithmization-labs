@@ -6,8 +6,13 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <queue>
+#include <vector>
 using namespace std;
 
+struct Eccentricity {
+	int vertexNumber;
+	int max;
+};
 
 bool checkIsVertertexAdjacent(int** sourceMatrix, int firstVertexToDelite, int secondVertexToDelite) {
 	if (sourceMatrix[firstVertexToDelite][secondVertexToDelite] == 1) {
@@ -58,12 +63,12 @@ void printMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
 	}
 }
 
-void breadthFirstSearch(int** sourceMatrix, int matrixSize) {
+Eccentricity* breadthFirstSearch(int** sourceMatrix, int matrixSize, int inputVertix) {
 
 	int* visitedVertexs = (int*)calloc(matrixSize, sizeof(int));
 
 	queue<int> vertexQueue;
-	vertexQueue.push(0);
+	vertexQueue.push(inputVertix);
 
 	for (int i = 0; i < matrixSize; i++)
 	{
@@ -71,8 +76,8 @@ void breadthFirstSearch(int** sourceMatrix, int matrixSize) {
 	}
 
 
-	visitedVertexs[0] = 0;
-
+	visitedVertexs[inputVertix] = 0;
+	printf("Маршрут: ");
 	while (!vertexQueue.empty())
 	{
 		int vertex = vertexQueue.front();
@@ -92,12 +97,31 @@ void breadthFirstSearch(int** sourceMatrix, int matrixSize) {
 		}
 	}
 
-	printf("\n\n");
+	printf("\nДистанция: ");
 	for (int i = 0; i < matrixSize; i++)
 	{
+
 		printf("%d", visitedVertexs[i]);
 
 	}
+
+	int maxDistance = INT16_MIN;	
+
+	for (int i = 0; i < matrixSize; i++)
+	{
+		if (visitedVertexs[i] > maxDistance)
+		{
+			maxDistance = visitedVertexs[i];
+		}
+	}
+
+	Eccentricity* minmax = new Eccentricity();//(Eccentricity*)malloc(sizeof(Eccentricity));
+
+	minmax->max = maxDistance;
+	minmax->vertexNumber = inputVertix;
+
+	
+	return minmax;
 
 }
 
@@ -119,8 +143,48 @@ void main()
 	printf("\nИсходная матрица смежности\n");
 
 	printMatrix(sourceMatrix, matrixSize, matrixSize);
-	printf("\n");
-	breadthFirstSearch(sourceMatrix, matrixSize);
+	printf("\n\n\n");
+
+	vector<Eccentricity> allEccentricity;
+	for (int i = 0; i < matrixSize; i++)
+	{
+		Eccentricity* minMax = breadthFirstSearch(sourceMatrix, matrixSize, i);
+		printf("\nЭксцентриситет вершины:%d  = %d \n",i, minMax->max);
+		printf("\n\n");
+		allEccentricity.push_back(*minMax);
+	}
+
+	Eccentricity diameter = allEccentricity.at(0);
+	Eccentricity radius = allEccentricity.at(0);
+	for (int i = 1; i < matrixSize; i++)
+	{
+		Eccentricity element = allEccentricity.at(i);
+		if (diameter.max < element.max)
+		{
+			diameter = element;
+		}
+		if (radius.max > element.max)
+		{
+			radius = element;
+		}
+	}
+	printf("Диаметр графа: %d", diameter.max);
+	printf("\nРадиус графа: %d", radius.max);
+	
+	
+	printf("\n\n");
+	for (int i = 0; i < matrixSize; i++)
+	{
+		Eccentricity element = allEccentricity.at(i);
+		if (element.max == diameter.max)
+		{
+			printf("\nПериферийная вершина %d", element.vertexNumber);
+		}
+		if (element.max == radius.max)
+		{
+			printf("\nЦентральная вершина %d", element.vertexNumber);
+		}
+	}
 }
 
 
