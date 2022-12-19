@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace CourseWork
 {
     public class Program
     {
+        private static Random _random;
+
         private static void PrintMatrix(List<List<int>> matrix)
         {
             for (int i = 0; i < matrix.Count; i++)
@@ -14,9 +17,11 @@ namespace CourseWork
                 {
                     Console.Write($"{matrix[i][j]}\t");
                 }
+
                 Console.WriteLine();
             }
         }
+
         private static bool ValidateMatrix(List<List<int>> matrix)
         {
             var countColumns = matrix.Count;
@@ -25,6 +30,25 @@ namespace CourseWork
                 if (matrix[i].Count != countColumns)
                 {
                     return false;
+                }
+            }
+
+            for (int i = 0; i < countColumns; i++)
+            {
+                if (matrix[i][i] != 0)
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < countColumns; i++)
+            {
+                for (int j = 0; j < countColumns; j++)
+                {
+                    if (matrix[i][j] != matrix[j][i])
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -95,17 +119,93 @@ namespace CourseWork
 
             if (resultParsing == 2)
             {
+                try
+                {
+                    matrix = ReadMatrixFromConsole();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Неправильный ввод. {e.Message}");
+                    PrintMenu();
+                }
             }
 
             if (resultParsing == 3)
             {
+                int userMatrixSize;
+                Console.WriteLine("Введите размер матрицы: ");
+                userMatrixSize = int.Parse(Console.ReadLine());
+                matrix = FillMatrixRandom(userMatrixSize);
             }
-            PrintMatrix(matrix);
 
+            PrintMatrix(matrix);
+        }
+
+        private static List<List<int>> ReadMatrixFromConsole()
+        {
+            int userMatrixSize;
+            Console.WriteLine("Введите размер матрицы: ");
+            userMatrixSize = int.Parse(Console.ReadLine());
+            List<List<int>> matrix = new List<List<int>>();
+
+            for (int i = 0; i < userMatrixSize; i++)
+            {
+                List<int> line = new List<int>();
+                line.AddRange(Enumerable.Range(0, userMatrixSize));
+                matrix.Add(line);
+            }
+
+            for (int i = 0; i < userMatrixSize; i++)
+            {
+                for (int j = 0; j < userMatrixSize; j++)
+                {
+                    matrix[i][j] = int.Parse(Console.ReadLine());
+                }
+            }
+
+            if (!ValidateMatrix(matrix))
+            {
+                throw new ArgumentException("Матрица введена неправильно");
+            }
+
+            return matrix;
+        }
+
+        private static List<List<int>> FillMatrixRandom(int inputMatrixSize)
+        {
+            List<List<int>> matrix = new List<List<int>>();
+
+            for (int i = 0; i < inputMatrixSize; i++)
+            {
+                List<int> line = new List<int>();
+                line.AddRange(Enumerable.Range(0, inputMatrixSize));
+                matrix.Add(line);
+            }
+
+
+            for (int i = 0; i < inputMatrixSize; i++)
+            {
+                for (int j = 0; j < inputMatrixSize; j++)
+                {
+                    int randomNumber = _random.Next() & 1;
+                    if (i == j)
+                    {
+                        matrix[i][j] = 0;
+                    }
+                    else
+                    {
+                        matrix[i][j] = randomNumber;
+                        matrix[j][i] = randomNumber;
+                    }
+                }
+            }
+
+            return matrix;
         }
 
         public static void Main(string[] args)
         {
+            _random = new Random();
             PrintMenu();
         }
     }
