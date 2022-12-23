@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MultiConsoleOutput;
 
 namespace CourseWork
 {
@@ -18,7 +19,7 @@ namespace CourseWork
                     Console.Write($"{matrix[i][j]}\t");
                 }
 
-                Console.WriteLine();
+                Console.WriteLine("\n");
             }
         }
 
@@ -83,24 +84,30 @@ namespace CourseWork
             return matrix;
         }
 
-        public static void PrintMenu()
+        public static bool PrintMenu()
         {
             Console.WriteLine("Выберите действие:");
             Console.WriteLine("1 - Чтение  с файла");
-            Console.WriteLine("2 - Ввести с клавиатуры");
-            Console.WriteLine("3 - Ввести случайную матрицу");
+            Console.WriteLine("2 - Ввести случайную матрицу");
+            Console.WriteLine("3 - Выйти");
+
             var userInput = Console.ReadLine();
+
             if (!int.TryParse(userInput, out int resultParsing))
             {
                 Console.WriteLine("Команды не существует");
-                PrintMenu();
-                return;
+                return false;
             }
 
-            if (resultParsing > 4 || resultParsing <= 0)
+            if (resultParsing > 3 || resultParsing <= 0)
             {
                 Console.WriteLine("Команды не существует");
-                PrintMenu();
+                return false;
+            }
+
+            if (resultParsing == 3)
+            {
+                return true;
             }
 
             List<List<int>> matrix = new List<List<int>>();
@@ -113,7 +120,7 @@ namespace CourseWork
                 catch (Exception e)
                 {
                     Console.WriteLine($"Неправильный формат файла. Тип ошибки {e.Message}");
-                    PrintMenu();
+                    return false;
                 }
             }
 
@@ -121,24 +128,66 @@ namespace CourseWork
             {
                 try
                 {
-                    matrix = ReadMatrixFromConsole();
+                    matrix = CreateMatrixByUserInput();
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Неправильный ввод. {e.Message}");
-                    PrintMenu();
+                    Console.WriteLine($"Неправильный пользовательский ввод {e.Message}");
+                    return false;
                 }
             }
 
-            if (resultParsing == 3)
+            PrintMatrix(matrix);
+
+            DijkstraAlgo(matrix, 0);
+            return false;
+        }
+
+        private static List<List<int>> CreateMatrixByUserInput()
+        {
+            List<List<int>> matrix;
+            Console.WriteLine("Введите размер матрицы: ");
+            var userMatrixSize = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Выберите: взвешенный граф - 1, не взвешенный - 0");
+            var userNumberInput = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Выберите: ориентированный граф - 1, не ориентированный граф  - 0 ");
+            var userSelectedOrintationGrapth = int.Parse(Console.ReadLine());
+
+            if (userNumberInput < 0 || userNumberInput > 1)
             {
-                int userMatrixSize;
-                Console.WriteLine("Введите размер матрицы: ");
-                userMatrixSize = int.Parse(Console.ReadLine());
-                matrix = FillMatrixRandom(userMatrixSize);
+                throw new ArgumentException("Пользователь ввел недопустимые цифры");
             }
 
-            PrintMatrix(matrix);
+            if (userSelectedOrintationGrapth < 0 || userSelectedOrintationGrapth > 1)
+            {
+                throw new ArgumentException("Пользователь ввел недопустимые цифры");
+            }
+
+            Action<int, int, List<List<int>>, int> orintationAction;
+
+            if (userSelectedOrintationGrapth == 0)
+            {
+                orintationAction = FillNotOrientedGraph;
+            }
+            else
+            {
+                orintationAction = FillOrientedGraph;
+            }
+
+
+            if (userNumberInput == 1)
+            {
+                matrix = FillMatrixRandom(userMatrixSize, GenerateAnyRandomNumber, orintationAction);
+            }
+            else
+            {
+                matrix = FillMatrixRandom(userMatrixSize, GenerateRandomZeroOreOne, orintationAction);
+            }
+
+
+            return matrix;
         }
 
         private static List<List<int>> ReadMatrixFromConsole()
@@ -171,7 +220,8 @@ namespace CourseWork
             return matrix;
         }
 
-        private static List<List<int>> FillMatrixRandom(int inputMatrixSize)
+        private static List<List<int>> FillMatrixRandom(int inputMatrixSize, Func<int> generator,
+            Action<int, int, List<List<int>>, int> fillMatrix)
         {
             List<List<int>> matrix = new List<List<int>>();
 
@@ -187,26 +237,118 @@ namespace CourseWork
             {
                 for (int j = 0; j < inputMatrixSize; j++)
                 {
-                    int randomNumber = _random.Next() & 1;
-                    if (i == j)
-                    {
-                        matrix[i][j] = 0;
-                    }
-                    else
-                    {
-                        matrix[i][j] = randomNumber;
-                        matrix[j][i] = randomNumber;
-                    }
+                    int randomNumber = generator.Invoke();
+                    fillMatrix(i, j, matrix, randomNumber);
                 }
             }
 
             return matrix;
         }
 
+        private static void FillOrientedGraph(int i, int j, List<List<int>> matrix, int randomNumber)
+        {
+            if (i == j)
+            {
+                matrix[i][j] = 0;
+            }
+            else
+            {
+                matrix[i][j] = randomNumber;
+            }
+        }
+
+        private static void FillNotOrientedGraph(int i, int j, List<List<int>> matrix, int randomNumber)
+        {
+            if (i == j)
+            {
+                matrix[i][j] = 0;
+            }
+            else
+            {
+                matrix[i][j] = randomNumber;
+                matrix[j][i] = randomNumber;
+            }
+        }
+
+        public static int GenerateRandomZeroOreOne()
+        {
+            return _random.Next() & 1;
+        }
+
+        public static int GenerateAnyRandomNumber()
+        {
+            return _random.Next() % 20;
+        }
+
+        private static int MinimumDistance(int[] distance, bool[] shortestPathTreeSet, int verticesCount)
+        {
+            int min = int.MaxValue;
+            int minIndex = 0;
+
+            for (int v = 0; v < verticesCount; ++v)
+            {
+                if (shortestPathTreeSet[v] == false && distance[v] <= min)
+                {
+                    min = distance[v];
+                    minIndex = v;
+                }
+            }
+
+            return minIndex;
+        }
+
+        public static void DijkstraAlgo(List<List<int>> graph, int source)
+        {
+            int verticesCount = graph.Count;
+            int[] distance = new int[verticesCount];
+            bool[] shortestPathTreeSet = new bool[verticesCount];
+
+            for (int i = 0; i < verticesCount; ++i)
+            {
+                distance[i] = int.MaxValue;
+                shortestPathTreeSet[i] = false;
+            }
+
+            distance[source] = 0;
+
+            for (int count = 0; count < verticesCount - 1; ++count)
+            {
+                int u = MinimumDistance(distance, shortestPathTreeSet, verticesCount);
+                shortestPathTreeSet[u] = true;
+
+                for (int v = 0; v < verticesCount; ++v)
+                {
+                    if (!shortestPathTreeSet[v] && graph[u][v] != 0 && distance[u] != int.MaxValue &&
+                        distance[u] + graph[u][v] < distance[v])
+                    {
+                        distance[v] = distance[u] + graph[u][v];
+                    }
+                }
+            }
+
+            Print(distance, verticesCount);
+        }
+
+        private static void Print(int[] distance, int verticesCount)
+        {
+            Console.WriteLine("Вершина    Расстояние от источника");
+
+            for (int i = 0; i < verticesCount; ++i)
+                Console.WriteLine("{0}\t  {1}", i, distance[i]);
+        }
+
+        
         public static void Main(string[] args)
         {
             _random = new Random();
-            PrintMenu();
+            ConsoleFileOutput dualOutput = new ConsoleFileOutput("outPut.txt", Console.Out);  
+            Console.SetOut(dualOutput);
+            var needQuiet = false;
+            while (!needQuiet)
+            {
+                needQuiet = PrintMenu();
+                Console.WriteLine("\n\n\n");
+            }
         }
     }
 }
