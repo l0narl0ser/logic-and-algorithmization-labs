@@ -136,10 +136,25 @@ namespace CourseWork
                     return false;
                 }
             }
+            Console.WriteLine("Введите вершину, с которой начинается поиск");
+            int vertex;
 
+            try
+            {
+                vertex = int.Parse( Console.ReadLine());
+                if (vertex > matrix.Count || vertex < 0)
+                {
+                    throw new AggregateException("Некорректный Ввод вершины");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
             PrintMatrix(matrix);
 
-            DijkstraAlgo(matrix, 0);
+            DijkstraAlgo(matrix, vertex);
             return false;
         }
 
@@ -189,37 +204,7 @@ namespace CourseWork
 
             return matrix;
         }
-
-        private static List<List<int>> ReadMatrixFromConsole()
-        {
-            int userMatrixSize;
-            Console.WriteLine("Введите размер матрицы: ");
-            userMatrixSize = int.Parse(Console.ReadLine());
-            List<List<int>> matrix = new List<List<int>>();
-
-            for (int i = 0; i < userMatrixSize; i++)
-            {
-                List<int> line = new List<int>();
-                line.AddRange(Enumerable.Range(0, userMatrixSize));
-                matrix.Add(line);
-            }
-
-            for (int i = 0; i < userMatrixSize; i++)
-            {
-                for (int j = 0; j < userMatrixSize; j++)
-                {
-                    matrix[i][j] = int.Parse(Console.ReadLine());
-                }
-            }
-
-            if (!ValidateMatrix(matrix))
-            {
-                throw new ArgumentException("Матрица введена неправильно");
-            }
-
-            return matrix;
-        }
-
+        
         private static List<List<int>> FillMatrixRandom(int inputMatrixSize, Func<int> generator,
             Action<int, int, List<List<int>>, int> fillMatrix)
         {
