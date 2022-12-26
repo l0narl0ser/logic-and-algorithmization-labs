@@ -123,7 +123,8 @@ namespace CourseWork
                     return false;
                 }
             }
-
+            
+            
             if (resultParsing == 2)
             {
                 try
@@ -136,6 +137,7 @@ namespace CourseWork
                     return false;
                 }
             }
+            PrintMatrix(matrix);
             Console.WriteLine("Введите вершину, с которой начинается поиск");
             int vertex;
 
@@ -152,7 +154,7 @@ namespace CourseWork
                 Console.WriteLine(e);
                 return false;
             }
-            PrintMatrix(matrix);
+            //PrintMatrix(matrix);
 
             DijkstraAlgo(matrix, vertex);
             return false;
@@ -334,6 +336,7 @@ namespace CourseWork
                 needQuiet = PrintMenu();
                 Console.WriteLine("\n\n\n");
             }
+            
         }
     }
 }
