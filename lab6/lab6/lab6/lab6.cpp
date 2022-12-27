@@ -7,6 +7,8 @@
 #include <locale.h>
 
 
+
+
 bool checkIsVertertexAdjacent(int** sourceMatrix, int firstVertexToDelite, int secondVertexToDelite) {
 	if (sourceMatrix[firstVertexToDelite][secondVertexToDelite] == 1) {
 		return true;
@@ -66,7 +68,7 @@ int calculateSizeGraph(int** sourseMatrix, int columnCount, int rowsCount) {
 		{
 			if (sourseMatrix[i][j] != 0) {
 
-				summer ++;
+				summer++;
 			}
 		}
 	}
@@ -82,13 +84,13 @@ void printPowVertix(int** sourseMatrix, int columnCount, int rowsCount) {
 		summer = 0;
 		for (int j = 0; j < columnCount; j++)
 		{
-			if (sourseMatrix[i][j] !=0)
+			if (sourseMatrix[i][j] != 0)
 			{
 				summer++;
 			}
 
 		}
-		printf("\nНомер вершины %d Степень вершины равна: %d ",i ,summer);
+		printf("\nНомер вершины %d Степень вершины равна: %d ", i, summer);
 
 		if (summer == 0)
 		{
@@ -106,7 +108,7 @@ void printPowVertix(int** sourseMatrix, int columnCount, int rowsCount) {
 
 }
 
-int**  createAdjacentMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
+int** createAdjacentMatrix(int** sourseMatrix, int columnCount, int rowsCount) {
 
 	int** resultMatrix = NULL;
 
@@ -117,19 +119,50 @@ int**  createAdjacentMatrix(int** sourseMatrix, int columnCount, int rowsCount) 
 	{
 		for (int j = 0; j < columnCount; j++)
 		{
-			
+
 		}
 	}
 	return resultMatrix;
 }
 
+void createMatrixIncidentality(int*** createdMatrix, int** sourceMatrix, int countRows) {
+	int edgSummer = 0;
+	for (int i = 0; i < countRows; i++)
+	{
+		for (int j = 0; j < countRows; j++)
+		{
+			if (i != j && sourceMatrix[i][j] != 0) {
+				edgSummer++;
+			}
+		}
+	}
+	edgSummer /= 2;
+
+	allocateMatrix(createdMatrix, edgSummer, countRows);
+
+	int halfSizeMatrix = countRows / 2;
+
+	for (int i = 0; i < countRows; i++)
+	{
+		int counter = 0;
+		for (int j = 0; j < countRows; j++)
+		{
+			if (i != j && i <= halfSizeMatrix && sourceMatrix[i][j] != 0) {
+				(*createdMatrix)[i][counter] = 1;
+				counter++;
+			}
+		}
+	}
+
+	printMatrix(*createdMatrix, edgSummer, countRows);
+}
 int main()
 {
 	setlocale(LC_ALL, "Rus");
 
-	
+
 	int** firstMatrix = NULL;
-	int firstCount =  0;
+	int firstCount = 0;
 	int sizeGraph = 0;
 
 	srand(time(NULL));
@@ -141,12 +174,15 @@ int main()
 	fillMatrixRandomElements(firstMatrix, firstCount, firstCount);
 	printMatrix(firstMatrix, firstCount, firstCount);
 	printf("\n");
-	 
+
 	sizeGraph = calculateSizeGraph(firstMatrix, firstCount, firstCount);
 	printf("\n");
 	printf("Размер графа: %d", sizeGraph);
 	printf("\n");
 	printPowVertix(firstMatrix, firstCount, firstCount);
+	int** incidentalityMatrix = NULL;
+	createMatrixIncidentality(&incidentalityMatrix, firstMatrix, firstCount);
+
 }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
